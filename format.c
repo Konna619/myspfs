@@ -28,12 +28,15 @@ static unsigned long spfs_format_cceh(struct spfs_sb_info *sbi, void *addr,
 
 	dir = (struct cceh_dir *) clu_addr(sbi, dir_index);
 	memset(dir, 0, CLUSTER_SIZE);
-	for (i = 0; i < __cceh_dir_capa(depth); i++)
+	for (i = 0; i < __cceh_dir_capa(depth); i++) {
 		dir->s[i] = dir_index + dir_cluster_cnt + i * CPS;
-
+		// spfs_msg(sbi->s_sb, KERN_INFO,
+		// 		"dir->s[%d]=%llx, &dir->s[i]=%llx", i, dir->s[i], &dir->s[i]);
+	}
+	clwb_sfence(dir, CLUSTER_SIZE);
 	spfs_msg(sbi->s_sb, KERN_INFO,
-			"CCEH format.. dir=%u seg=%u depth=%u lp=%u",
-			cceh->dir_c_idx, dir->s[0], cceh->depth,
+			"CCEH format.. dir=%u dir_addr=%llx seg=%u depth=%u lp=%u",
+			cceh->dir_c_idx, dir, dir->s[0], cceh->depth,
 			cceh->linear_probe_bkts);
 
 	return dir_cluster_cnt + __cceh_dir_capa(depth) * CPS;
@@ -46,6 +49,9 @@ int spfs_format(struct spfs_sb_info *sbi)
 	spfs_cluster_t fmc;
 	unsigned long hash_clu_cnt = 0;
 	int i;
+	struct cceh * cc_test;
+	struct cceh_dir *dir;
+	struct cceh_seg *seg;
 
 	memset(&sb, 0, sizeof(sb));
 
@@ -69,6 +75,14 @@ int spfs_format(struct spfs_sb_info *sbi)
 	hash_clu_cnt += spfs_format_cceh(sbi, sb.s_cluster_hash, fmc, 0,
 			DEF_LINEAR_PROBE_BKT_CNT);
 #endif
+	/**************************************/
+	cc_test = (struct cceh *) sbi->s_psb->s_cluster_hash;
+	dir = clu_addr(sbi, cc_test->dir_c_idx);
+	seg = clu_addr(sbi, dir->s[0]);
+
+	spfs_msg(sbi->s_sb, KERN_INFO,
+			"FUCK1 : dir_index=%d dir->s[0]=%llx &dir->s[0]=%llx seg=%llx", cc_test->dir_c_idx, dir->s[0], &dir->s[0],seg);
+	/**************************************/
 	hash_clu_cnt += spfs_format_cceh(sbi, &sb.s_namei_hash,
 			fmc + hash_clu_cnt, 0, DEF_LINEAR_PROBE_BKT_CNT);
 	if (sbi->s_options.extent_hash_lp == 0) {
@@ -76,11 +90,35 @@ int spfs_format(struct spfs_sb_info *sbi)
 				" ext_hlp=<..> option", __func__);
 		return -EINVAL;
 	}
+	/**************************************/
+	cc_test = (struct cceh *) sbi->s_psb->s_cluster_hash;
+	dir = clu_addr(sbi, cc_test->dir_c_idx);
+	seg = clu_addr(sbi, dir->s[0]);
+
+	spfs_msg(sbi->s_sb, KERN_INFO,
+			"FUCK2 : dir_index=%d dir->s[0]=%llx &dir->s[0]=%llx seg=%llx", cc_test->dir_c_idx, dir->s[0], &dir->s[0],seg);
+	/**************************************/
 	hash_clu_cnt += spfs_format_cceh(sbi, &sb.s_extent_hash,
 			fmc + hash_clu_cnt, sbi->s_options.extent_hash_depth,
 			sbi->s_options.extent_hash_lp);
+	/**************************************/
+	cc_test = (struct cceh *) sbi->s_psb->s_cluster_hash;
+	dir = clu_addr(sbi, cc_test->dir_c_idx);
+	seg = clu_addr(sbi, dir->s[0]);
+
+	spfs_msg(sbi->s_sb, KERN_INFO,
+			"FUCK3 : dir_index=%d dir->s[0]=%llx &dir->s[0]=%llx seg=%llx", cc_test->dir_c_idx, dir->s[0], &dir->s[0],seg);
+	/**************************************/
 	__bitmap_set(clu_addr(sbi, FIRST_BITMAP_CLU), fmc, hash_clu_cnt);
 	SPFS_SFENCE();
+	/**************************************/
+	cc_test = (struct cceh *) sbi->s_psb->s_cluster_hash;
+	dir = clu_addr(sbi, cc_test->dir_c_idx);
+	seg = clu_addr(sbi, dir->s[0]);
+
+	spfs_msg(sbi->s_sb, KERN_INFO,
+			"FUCK4 : dir_index=%d dir->s[0]=%llx &dir->s[0]=%llx seg=%llx", cc_test->dir_c_idx, dir->s[0], &dir->s[0],seg);
+	/**************************************/
 
 	/* TODO: rest of above */
 
@@ -99,6 +137,15 @@ int spfs_format(struct spfs_sb_info *sbi)
 	clwb_sfence(sbi->s_psb, C2BYTES(SUPER_BLOCK_CLUSTERS));
 
 	spfs_msg(sbi->s_sb, KERN_INFO, "format done");
+
+	/**************************************/
+	cc_test = (struct cceh *) sbi->s_psb->s_cluster_hash;
+	dir = clu_addr(sbi, cc_test->dir_c_idx);
+	seg = clu_addr(sbi, dir->s[0]);
+
+	spfs_msg(sbi->s_sb, KERN_INFO,
+			"dir_index=%d dir->s[0]=%llx &dir->s[0]=%llx seg=%llx", cc_test->dir_c_idx, dir->s[0], &dir->s[0],seg);
+	/**************************************/
 
 	return 0;
 }

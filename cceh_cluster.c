@@ -131,6 +131,9 @@ void spfs_cceh_cluster_s_init(struct spfs_cceh_info *info,
 	for (i = 0; i < CPS; i++) {
 		struct spfs_cluster_usage *u = (struct spfs_cluster_usage *)
 			((char *) seg + i * CLUSTER_SIZE);
+		
+		// spfs_msg(info->sbi->s_sb, KERN_INFO,
+		// 	"cluster_addr=%llx", u);
 
 		memset(u, 0xff, CLUSTER_SIZE);
 		u->pad = i;

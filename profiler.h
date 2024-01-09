@@ -230,7 +230,7 @@ static inline bool __spfs_profile_fsync(struct file *file, struct inode *inode,
 		spfs_boost_locked(inode);
 	} else
 		return false;
-	pr_err("lkz: 情况2: fsync间隔小于1s且平均小于4MB且累计30次");
+	// pr_err("lkz: 情况2: fsync间隔小于1s且平均小于4MB且累计30次");
 	return true;
 }
 #endif
@@ -246,7 +246,7 @@ static inline int spfs_profile_fsync(struct file *file, bool from_fsync)
 	unsigned int ms;
 	s64 cnt;
 
-	pr_err("lkz: fsync，开始判断是否迁移");
+	// pr_err("lkz: fsync，开始判断是否迁移");
 	/* Let's do burst dir. profile only in the fsync path */
 	if (!from_fsync || !opts->migr_dir_boost)
 		goto lock;
@@ -261,12 +261,12 @@ static inline int spfs_profile_fsync(struct file *file, bool from_fsync)
 		cmpxchg(&dir_prof->first_fsync_jiffies, 0, jiffies);
 		goto lock;
 	}
-	pr_err("lkz: 没有goto lock");
+	// pr_err("lkz: 没有goto lock");
 
 	ms = jiffies_delta_to_msecs(jiffies - dir_prof->first_fsync_jiffies);
 	cnt = atomic64_inc_return(&dir_prof->dir_fsync_cnt);
 	if (ms && (cnt / ms) >= 1) { /* 1000 fsync calls() per second */
-		pr_err("lkz: 情况1:1秒1000fsync");
+		// pr_err("lkz: 情况1:1秒1000fsync");
 		BOOST_LOG(file, inode, "boost burst dir %lld/%ums", cnt, ms);
 		set_inode_flag(dir, INODE_DIR_USE_PM);
 		return 1;

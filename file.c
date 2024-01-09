@@ -62,7 +62,7 @@ static ssize_t spfs_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 	struct inode *inode = file_inode(iocb->ki_filp);
 	ssize_t ret;
 
-	pr_err("lkz: 读文件 %s",iocb->ki_filp->f_path.dentry->d_name.name);
+	// pr_err("lkz: 读文件 %s",iocb->ki_filp->f_path.dentry->d_name.name);
 
 	if (spfs_should_bypass(inode))
 		return spfs_read_iter_bp(iocb, to);
@@ -72,7 +72,7 @@ static ssize_t spfs_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 
 	inode_lock_shared(inode);
 	ret = spfs_iomap_rw(iocb, to, &spfs_iomap_ops);
-	pr_err("lkz: 读PM读了 %lu",ret);
+	// pr_err("lkz: 读PM读了 %lu",ret);
 	inode_unlock_shared(inode);
 
 	stats_prof_inc_read_on_boosted(inode, ret);
@@ -95,11 +95,11 @@ static ssize_t spfs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	loff_t offset;
 	struct inode *inode = file_inode(iocb->ki_filp);
 
-	pr_err("lkz: 写文件 %s",iocb->ki_filp->f_path.dentry->d_name.name);
-	pr_err("lkz: 上层inode号 %lu",inode->i_ino);
+	// pr_err("lkz: 写文件 %s",iocb->ki_filp->f_path.dentry->d_name.name);
+	// pr_err("lkz: 上层inode号 %lu",inode->i_ino);
 
 	if (spfs_should_bypass(inode)){
-		pr_err("lkz: 写入下层文件系统");
+		// pr_err("lkz: 写入下层文件系统");
 		return spfs_write_iter_bp(iocb, from);
 	}
 		
@@ -123,7 +123,7 @@ static ssize_t spfs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	ret = spfs_iomap_rw(iocb, from, &spfs_iomap_ops);
 	if (ret > 0)
 		spfs_update_inode_size(inode, offset + ret);
-	pr_err("lkz: 写PM写了 %lu",ret);
+	// pr_err("lkz: 写PM写了 %lu",ret);
 	spfs_del_tiering_rw_file(inode);
 out:
 	inode_unlock(inode);
@@ -138,10 +138,10 @@ out:
 
 int spfs_open(struct inode *inode, struct file *file)
 {
-	pr_err("lkz: 打开文件 %s",file->f_path.dentry->d_name.name);
+	// pr_err("lkz: 打开文件 %s",file->f_path.dentry->d_name.name);
 	if (IS_TIERED_INODE(inode) || spfs_should_bypass(inode))
 		return spfs_open_bp(inode, file);
-	pr_err("lkz: 此时还没有和SPFS联系上 ino:  %lu",inode->i_ino);
+	// pr_err("lkz: 此时还没有和SPFS联系上 ino:  %lu",inode->i_ino);
 	return generic_file_open(inode, file);
 }
 

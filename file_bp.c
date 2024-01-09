@@ -11,7 +11,7 @@ ssize_t spfs_read_iter_bp(struct kiocb *iocb, struct iov_iter *i)
 	struct file *lower_file = spfs_file_to_lower(file);
 	ssize_t ret;
 
-	pr_err("lkz: 之后是否还调用我呢？");
+	// pr_err("lkz: 之后是否还调用我呢？");
 
 	get_file(lower_file);
 	iocb->ki_filp = lower_file;
@@ -40,7 +40,7 @@ ssize_t spfs_write_iter_bp(struct kiocb *iocb, struct iov_iter *i)
 	iocb->ki_filp = lower_file;
 
 	ret = call_write_iter(lower_file, iocb, i);
-	pr_err("lkz: 下层inode号 %lu,写了%lu B",file_inode(lower_file)->i_ino,ret);
+	// pr_err("lkz: 下层inode号 %lu,写了%lu B",file_inode(lower_file)->i_ino,ret);
 	
 	if (ret <= 0 || !file_inode(lower_file)->i_op->fiemap)
 		goto prof_done;
@@ -62,7 +62,7 @@ ssize_t spfs_write_iter_bp(struct kiocb *iocb, struct iov_iter *i)
 			if (ret2)
 				spfs_debug_err(inode->i_sb, "failed to prepare"
 						" migration: %d", ret2);
-			pr_err("lkz: -------------------准备好了上层映射-----");
+			// pr_err("lkz: -------------------准备好了上层映射-----");
 		}
 	}
 prof_done:

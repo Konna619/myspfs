@@ -392,6 +392,9 @@ void spfs_cceh_init_segments(struct spfs_cceh_info *info, unsigned int depth)
 		dir = clu_addr(sbi, info->cceh->dir_c_idx);
 		seg = clu_addr(sbi, dir->s[i]);
 
+		// spfs_msg(info->sbi->s_sb, KERN_INFO,
+		// 	"dir_index=%d dir=%llx dir->s[%d]=%llx seg=%llx", info->cceh->dir_c_idx, dir, i, dir->s[i], seg);
+
 		if (info->sops->s_init)
 			info->sops->s_init(info, seg, depth, i);
 		else
