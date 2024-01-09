@@ -15,6 +15,11 @@
 
 #include "persist.h"
 
+#define CONFIG_SPFS_READDIR_RADIX_TREE 1
+#define CONFIG_SPFS_MODULE 1
+#define CONFIG_SPFS_STATS 1
+#define CONFIG_SPFS_BLOCK_BITS 8
+
 #define SPFS_SUPER_MAGIC	0xab501b
 
 #define spfs_msg(sb, level, fmt, ...)	\
